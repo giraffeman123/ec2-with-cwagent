@@ -10,7 +10,7 @@ variable "application" {
 
 variable "app_port" {
     type = string 
-    default = "3000"
+    default = "8080"
 }
 
 
@@ -50,8 +50,8 @@ variable "ec2_sg_ingress_rules" {
     default = {
         "http port" = {
             description = "HTTP port"
-            from_port   = 3000
-            to_port     = 3000
+            from_port   = 8080
+            to_port     = 8080
             protocol    = "tcp"
             cidr_blocks = ["0.0.0.0/0"]      
         },        

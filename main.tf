@@ -4,10 +4,10 @@ provider "aws" {
   secret_key = var.aws_secret_key
 }
 
-module "nodejs_api" {
+module "spring_api" {
     source = "./modules/ec2"    
     environment = "dev"
-    application = "merge-sort"    
+    application = "xaldigital"    
     vpc_id = var.vpc_id
     subnet_id = var.subnet_id
     ec2_ami_id = "ami-024e6efaf93d85776"

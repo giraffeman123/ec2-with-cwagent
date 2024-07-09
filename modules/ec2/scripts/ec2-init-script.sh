@@ -15,7 +15,7 @@ mvn -version
 #install and configure tomcat 10
 sudo useradd -m -d /opt/tomcat -U -s /bin/false tomcat
 cd /tmp
-wget https://dlcdn.apache.org/tomcat/tomcat-10/v10.1.19/bin/apache-tomcat-10.1.19.tar.gz
+wget https://dlcdn.apache.org/tomcat/tomcat-10/v10.1.25/bin/apache-tomcat-10.1.25.tar.gz
 sudo tar xzvf apache-tomcat-10*tar.gz -C /opt/tomcat --strip-components=1
 
 sudo chown -R tomcat:tomcat /opt/tomcat/
@@ -38,6 +38,8 @@ Environment="CATALINA_BASE=/opt/tomcat"
 Environment="CATALINA_HOME=/opt/tomcat"
 Environment="CATALINA_PID=/opt/tomcat/temp/tomcat.pid"
 Environment="CATALINA_OPTS=-Xms512M -Xmx1024M -server -XX:+UseParallelGC"
+Environment="SERVER_PORT=${app_port}"
+Environment="XAL_DIGITAL_API_BASE_URL=http://localhost"
 
 ExecStart=/opt/tomcat/bin/startup.sh
 ExecStop=/opt/tomcat/bin/shutdown.sh
@@ -50,64 +52,35 @@ WantedBy=multi-user.target
 EOF
 
 sudo mv /home/ubuntu/tomcat.service /etc/systemd/system/
+
+#configure environment variables for tomcat
+cat > /home/ubuntu/setenv.sh <<EOF
+export JAVA_HOME="/usr/lib/jvm/java-1.17.0-openjdk-amd64"
+export JAVA_OPTS="-Djava.security.egd=file:///dev/urandom"
+export CATALINA_BASE="/opt/tomcat"
+export CATALINA_HOME="/opt/tomcat"
+export CATALINA_PID="/opt/tomcat/temp/tomcat.pid"
+export CATALINA_OPTS="-Xms512M -Xmx1024M -server -XX:+UseParallelGC"
+export SERVER_PORT="${app_port}"
+export XAL_DIGITAL_API_BASE_URL="http://localhost"
+EOF
+
+sudo mv /home/ubuntu/setenv.sh /opt/tomcat/bin
+
+#restart systemd and start tomcat
 sudo systemctl daemon-reload
 sudo systemctl enable tomcat
 sudo systemctl start tomcat
 sudo systemctl status tomcat
 
-#install and configure java spring boot project
-cd /home/ubuntu
-git clone https://github.com/giraffeman123/tech-interview-xaldigital.git
-cd tech-interview-xaldigital/web-app/
-mvn clean package
-sudo mv /home/ubuntu/tech-interview-xaldigital/web-app/target/WebApp.war /opt/tomcat/webapps/web-app.war
+# #install and configure java spring boot project
+# cd /home/ubuntu
+# git clone https://github.com/giraffeman123/tech-interview-xaldigital.git
+# cd tech-interview-xaldigital/web-app/
+# sudo mvn clean package
+# sudo mv /home/ubuntu/tech-interview-xaldigital/web-app/target/WebApp.war /opt/tomcat/webapps/ROOT.war
 
-sudo systemctl restart tomcat
-
-
-# #nvm installation
-# curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.4/install.sh | bash
-# export NVM_DIR="$HOME/.nvm"
-# [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-# nvm install --lts
-# node -v
-
-# #we clone api repository
-# cd /home/ubuntu/
-# git clone https://github.com/giraffeman123/k8-api.git
-# #cd k8-api/
-
-# #create directory for app logs
-# sudo mkdir /var/log/merge-sort-app
-
-# #we add the api as a service unit in systemd service manager 
-# cat > /home/ubuntu/merge-sort-app.service <<EOF
-# [Unit]
-# Description=Simple NodeJs App with merge-sort algorithm and other endpoints for testing
-# After=network.target
-# [Service]
-# ExecStart=/usr/bin/node /home/ubuntu/k8-api/index.js
-# WorkingDirectory=/home/ubuntu/k8-api
-# Restart=always
-# User=ubuntu
-# Environment=PATH=/usr/bin:/usr/local/bin
-# Environment=NODE_ENV=production
-# Environment=PORT=${app_port}
-# StandardOutput=file:/var/log/merge-sort-app/logs.log
-# StandardError=file:/var/log/merge-sort-app/logs.log
-# [Install]
-# WantedBy=multi-user.target
-# EOF
-
-# sudo mv /home/ubuntu/merge-sort-app.service /etc/systemd/system/
-
-# #create link to nodejs executable
-# sudo ln -s "$(which node)" /usr/bin/node
-
-# #we enable the service, start it and check status
-# sudo systemctl enable merge-sort-app
-# sudo systemctl start merge-sort-app
-# sudo systemctl status merge-sort-app
+# sudo systemctl restart tomcat
 
 # #install, configure and start cloudwatch agent
 # mkdir /tmp/cloudwatch-logs && cd /tmp/cloudwatch-logs
