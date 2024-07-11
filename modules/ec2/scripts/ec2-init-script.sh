@@ -13,12 +13,12 @@ sudo apt-get -y install maven
 mvn -version
 
 #install and configure tomcat 10
-sudo useradd -m -d /opt/tomcat -U -s /bin/false tomcat
+sudo mkdir /opt/tomcat
 cd /tmp
 wget https://dlcdn.apache.org/tomcat/tomcat-10/v10.1.25/bin/apache-tomcat-10.1.25.tar.gz
 sudo tar xzvf apache-tomcat-10*tar.gz -C /opt/tomcat --strip-components=1
 
-sudo chown -R tomcat:tomcat /opt/tomcat/
+sudo chown -R ubuntu:ubuntu /opt/tomcat/
 sudo chmod -R u+x /opt/tomcat/bin
 
 cat > /home/ubuntu/tomcat.service <<EOF
@@ -29,8 +29,7 @@ After=network.target
 [Service]
 Type=forking
 
-User=tomcat
-Group=tomcat
+User=ubuntu
 
 Environment="JAVA_HOME=/usr/lib/jvm/java-1.17.0-openjdk-amd64"
 Environment="JAVA_OPTS=-Djava.security.egd=file:///dev/urandom"
@@ -50,6 +49,7 @@ Restart=always
 [Install]
 WantedBy=multi-user.target
 EOF
+
 
 sudo mv /home/ubuntu/tomcat.service /etc/systemd/system/
 
@@ -73,25 +73,19 @@ sudo systemctl enable tomcat
 sudo systemctl start tomcat
 sudo systemctl status tomcat
 
-# #install and configure java spring boot project
-# cd /home/ubuntu
-# git clone https://github.com/giraffeman123/tech-interview-xaldigital.git
-# cd tech-interview-xaldigital/web-app/
-# sudo mvn clean package
-# sudo mv /home/ubuntu/tech-interview-xaldigital/web-app/target/WebApp.war /opt/tomcat/webapps/ROOT.war
+#install and configure java spring boot project
+cd /home/ubuntu
+git clone https://github.com/giraffeman123/tech-interview-xaldigital.git
+cd tech-interview-xaldigital/web-app/
+sudo mvn clean package
+sudo chown -R ubuntu:ubuntu target/WebApp.war
+sudo mv /home/ubuntu/tech-interview-xaldigital/web-app/target/WebApp.war /opt/tomcat/webapps/ROOT.war
 
-# sudo systemctl restart tomcat
+sudo systemctl restart tomcat
 
-# #install, configure and start cloudwatch agent
-# mkdir /tmp/cloudwatch-logs && cd /tmp/cloudwatch-logs
-# wget https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb
-# sudo dpkg -i -E ./amazon-cloudwatch-agent.deb
+#install, configure and start cloudwatch agent
+mkdir /tmp/cloudwatch-logs && cd /tmp/cloudwatch-logs
+sudo wget https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb
+sudo dpkg -i -E ./amazon-cloudwatch-agent.deb
 
-# sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c ssm:${ssm_cloudwatch_config} -s
-
-# #install, configure and start ssm-agent
-# sudo mkdir /tmp/ssm && cd /tmp/ssm
-# wget https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/debian_amd64/amazon-ssm-agent.deb
-# sudo dpkg -i amazon-ssm-agent.deb
-# sudo systemctl enable amazon-ssm-agent
-# rm amazon-ssm-agent.deb
+sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c ssm:${ssm_cloudwatch_config} -s
