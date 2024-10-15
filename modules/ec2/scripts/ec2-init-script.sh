@@ -3,17 +3,17 @@
 #Instalacion paquetes necesarios
 sudo apt-get update
 
-#nvm installation
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.4/install.sh | bash
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-nvm install --lts
+#nodejs & npm installation
+sudo apt-get -y install nodejs
 node -v
+sudo apt-get -y install npm
+npm -v
 
-#we clone api repository
+#we clone api repository and install project dependencies 
 cd /home/ubuntu/
-git clone https://github.com/giraffeman123/k8-api.git
-#cd k8-api/
+git clone https://github.com/giraffeman123/merge-sort-api.git
+cd merge-sort-api/
+sudo npm install --production
 
 #create directory for app logs
 sudo mkdir /var/log/merge-sort-app
@@ -24,8 +24,8 @@ cat > /home/ubuntu/merge-sort-app.service <<EOF
 Description=Simple NodeJs App with merge-sort algorithm and other endpoints for testing
 After=network.target
 [Service]
-ExecStart=/usr/bin/node /home/ubuntu/k8-api/index.js
-WorkingDirectory=/home/ubuntu/k8-api
+ExecStart=/usr/bin/node /home/ubuntu/merge-sort-api/index.js
+WorkingDirectory=/home/ubuntu/merge-sort-api
 Restart=always
 User=ubuntu
 Environment=PATH=/usr/bin:/usr/local/bin
