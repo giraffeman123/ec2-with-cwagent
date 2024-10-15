@@ -4,3 +4,4 @@ terraform.*
 *.pem
 .env
 aws-test.pem
+dev.tfvars

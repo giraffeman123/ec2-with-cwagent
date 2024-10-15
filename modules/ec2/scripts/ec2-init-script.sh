@@ -3,6 +3,9 @@
 #Instalacion paquetes necesarios
 sudo apt-get update
 
+#install unzip package
+sudo apt-get -y install unzip
+
 #install java 17
 sudo apt-get -y install openjdk-17-jdk openjdk-17-jre
 export JAVA_HOME="/usr/lib/jvm/java-1.17.0-openjdk-amd64"
@@ -15,8 +18,10 @@ mvn -version
 #install and configure tomcat 10
 sudo mkdir /opt/tomcat
 cd /tmp
-wget https://dlcdn.apache.org/tomcat/tomcat-10/v10.1.25/bin/apache-tomcat-10.1.25.tar.gz
-sudo tar xzvf apache-tomcat-10*tar.gz -C /opt/tomcat --strip-components=1
+wget [ADD_HERE_URL_TO_APACHE_TOMCAT]
+sudo unzip apache-tomcat-10.1.25.zip
+sudo mv apache-tomcat-10.1.25/* /opt/tomcat
+#sudo tar xzvf apache-tomcat-10*tar.gz -C /opt/tomcat --strip-components=1
 
 sudo chown -R ubuntu:ubuntu /opt/tomcat/
 sudo chmod -R u+x /opt/tomcat/bin
